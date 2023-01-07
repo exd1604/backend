@@ -67,33 +67,36 @@ Returns the system userId and your allocated token. Copy those as you will need 
 SAUCES
 ------
 Http Address: http://localhost:3000/api/sauces/
+Sauce routes are only available for users logged in.
+So you need to login first and get a signed token for you user to require sauces 
+otherwise you'll get an error returned for any sauce route.
 All sauce routes require the authentication token to be entered in the headers tab. 
 Key is: Authorization
 Value is: Bearer Token value returned to you when you logged in. 
 Sample token: 
-Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2M2I3YWUxYTFlM2UyZDNjYmEzMDkxNTciLCJpYXQiOjE2NzI5ODU3MTksImV4cCI6MTY3MzA3MjExOX0.itIcn9kQvuGxy6PWv30hDx_It6uCN26qzWNQxkTzNJg
-
+Bearer Header.Payload.Signature
+Token is returned when you login the app.
 Create a sauce:
 ---------------
 Route: 
 Method: post
 Body:
 Form Data
-sauce: {"name":"Nouvelle sauce","manufacturer":"Maille Maille","description":"momomomo","mainPepper":"red","heat":3,"userId":"63ac0c53178b146320974af0"}
+sauce: {"name":"Nouvelle sauce","manufacturer":"Maille Maille","description":"momomomo","mainPepper":"red","heat":3,"userId":"MongoDB userid"}
 image: file
 
 Amend a sauce: (With an image File)
 -----------------------------------
-Route: :id
+Route: :id - (:id - Sauce mongodb id that you need to enter in the params tab)
 Method: put
 Body:
 Form Data (Similar to sauce creation)
-sauce: {"name":"Amended name","manufacturer":"Changed manufacturer","description":"Amended description","mainPepper":"Blue","heat":5,"userId":"63b6a316a26f67ece814f293"}
+sauce: {"name":"Amended name","manufacturer":"Changed manufacturer","description":"Amended description","mainPepper":"Blue","heat":5,"userId":"MongoDB userid"}
 image: file
 
 Amend a sauce: (Without image File)
 -----------------------------------
-Route: :id
+Route: :id - (:id - Sauce mongodb id that you need to enter in the params tab)
 Method: put
 Body: JSON
 {
@@ -102,16 +105,16 @@ Body: JSON
 "description":"My new description",
 "mainPepper":"Red",
 "heat":9,
-"userId":"63b6a316a26f67ece814f293"
+"userId":"MongoDB userid"
 }
 
 Like / Dislike a sauce:
 -----------------------
-Route: :id/like
+Route: :id/like (:id - Sauce mongodb id that you need to enter in the params tab)
 Method: post
 Body: JSON
 {
-"userId":"63b6a316a26f67ece814f293",
+"userId":"MongoDB userid",
 "like":1
 }
  
@@ -124,13 +127,13 @@ Body: NONE
 
 Get One Sauce
 -------------
-Route: :id
+Route: :id - (:id - Sauce mongodb id that you need to enter in the params tab)
 Method: Get
 Body:
 NONE
 
 Delete One Sauce
 ----------------
-Route: :id
+Route: :id - (:id - Sauce mongodb id that you need to enter in the params tab)
 Method: Delete
 Body: NONE
