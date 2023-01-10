@@ -1,5 +1,5 @@
 Back end project for P6
-Uses Express, mongoose (mongodb), bcrypt, jsonwebtoken, multer, dotenv
+Uses Express, mongoose (mongodb), bcrypt, jsonwebtoken, multer, dotenv, password-validator
 
 PIIQUANTE – Backend Structure
 
@@ -65,6 +65,15 @@ Body sample:
     "email": "sample.sample@sample.com",
     "password": "password”
 }
+
+Password's strength is validated via npm password-validator package embedded into a middelware.
+It ensures the password contains:
+min 8 characters, 
+maximum 15 characters, 
+minimum 2 digits, 
+lowercase,
+uppercase,
+no space
 
 Login:
 ------
