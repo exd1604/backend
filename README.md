@@ -18,8 +18,16 @@ This document describes the component managing the backend process.
 Getting started:
 ----------------
 The app listens exclusively the localhost:3000 port. If this port is not available then restart when the port 3000 is free.
-To start the server please run: node server in a terminal screen.
+To start the server please run: node server in a terminal screen
 Once done the process will indicate server is started and connected to database. If not, an error will be displayed.
+
+A set of app variables are necessary in a .env file
+MONGODB access parameters: Cluster, Name, User Id, Password 
+BCRYPT: Number of salt rounds (Recommended 10 - More would be consume too much resource)
+JSON Web Token: Secret Key  
+
+Secret Key: I used https://www.allkeysgenerator.com/Random/Security-Encryption-Key-Generator.aspx to generate all sort of random keys (WPA, WEP, Encryption keys, passwords. Propose various levels (64, 128, 256, 512, 1024, 2048, 4096 bits)).
+Many other sites can do same thing. 
 
 Playing with the API:
 ---------------------
@@ -123,7 +131,6 @@ Get All Sauces
 Route: 
 Method: Get
 Body: NONE
- 
 
 Get One Sauce
 -------------

@@ -7,13 +7,15 @@ const mongoose = require('mongoose');
 const path = require('path');
 const userRoutes = require('./routes/user');
 const sauceRoutes = require('./routes/sauce');
+const dotenv = require('dotenv');
+dotenv.config();
 
-mongoose.connect('mongodb+srv://exd1604:N9cUCYBeUlxeCIaY@cluster0.urxojqi.mongodb.net/?retryWrites=true&w=majority',
+mongoose.connect(`mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER}/${process.env.MONGODB_NAME}?retryWrites=true&w=majority`,
 {   useNewUrlParser: true,
     useUnifiedTopology: true })
         .then(() => console.log('Connexion à MongoDB réussie'))
-        .catch(() => console.log('Connexion à MongoDB échouée'));
-
+        .catch(() => console.log('Connexion à MongoDB échouée'));    
+        
 const app = express();
 
 app.use((req, res, next) => {

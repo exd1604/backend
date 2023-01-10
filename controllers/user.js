@@ -2,7 +2,8 @@
     User controller.
     Contains the master piece of the process related to user.
     It manages the signup and login routes.
-    On sign up password is encrypted using bcrypt package.
+    On sign up:     
+    - password is hashed using bcrypt package.
     bcrypt is also used in login controller to validate entered password (not crpyted)
     matches the Encrypted password recorded in DB 
 */
@@ -11,25 +12,32 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
+
 // Sign up 
 exports.signup = (req, res, next) => {
-    bcrypt.hash(req.body.password, 10)
+// Hash Password
+    bcrypt.hash(req.body.password, parseInt(process.env.BCRYPT_SALT_ROUNDS))
         .then(hash => {
             const user = new User({
-                email: req.body.email,
+                email: req.body.email, 
                 password: hash                
             });                        
             user.save()
                 .then(() => res.status(201).json({ message: 'Utilisateur créé'}))
-                .catch(error => res.status(400).json({ error }));
+                .catch(error => {
+                    console.log(error._message);
+                    console.log(error.name);
+                    console.log(error.message);
+                    res.status(400).json({ error: error })});
         })
-        .catch(error => res.status(500).json({ error }));
+        .catch(error => res.status(500).json({ error: error }));
 };
 
 // Login
 exports.login = (req, res, next) => {
-    User.findOne({email: req.body.email})
-    .then(user => {
+// Search DB using the frontend entered email
+    User.findOne({ email: req.body.email })    
+    .then(user => {        
         if (user === null) {
             res.status(401).json({ message: 'Paire identifiant/mot de passe incorrecte'});
         } else {
@@ -37,8 +45,8 @@ exports.login = (req, res, next) => {
             .then(valid => {                
                 if (!valid) {                    
                     res.status(401).json({ message: 'Paire identifiant/mot de passe incorrecte' });
-                } else {
-                    res.status(200).json({
+                } else {                    
+                    res.status(200).json({                        
                         userId: user._id,
 // When login is valid, process returns an allocated token that will be used for
 // authentication in the various sauces requests
@@ -51,11 +59,11 @@ exports.login = (req, res, next) => {
                 }
             })
             .catch(error => {
-                res.status(500).json( { error } );
+                res.status(500).json( { error: error } );
             });
         }            
     })
     .catch(error => {
-        res.status(500).json( { error } );
+        res.status(500).json( { error: error } );
     });
 };
