@@ -3,21 +3,18 @@
     Contains the DB connection piece and drive entering requests from client
 */
 const express = require('express');
-const mongoose = require('mongoose');
 const path = require('path');
+// Routes
 const userRoutes = require('./routes/user');
 const sauceRoutes = require('./routes/sauce');
+// Connexion to db
+const mongoose = require('./mongo/connect');
+// Variables
 const dotenv = require('dotenv');
 dotenv.config();
-
-mongoose.connect(`mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_CLUSTER}/${process.env.MONGODB_NAME}?retryWrites=true&w=majority`,
-{   useNewUrlParser: true,
-    useUnifiedTopology: true })
-        .then(() => console.log('Connexion à MongoDB réussie'))
-        .catch(() => console.log('Connexion à MongoDB échouée'));    
         
 const app = express();
-
+// CORS rules setup
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');    
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
