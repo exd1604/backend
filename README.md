@@ -17,8 +17,14 @@ This document describes the component managing the backend process.
 
 Getting started:
 ----------------
-The app listens exclusively the localhost:3000 port. If this port is not available then restart when the port 3000 is free.
-To start the server please run: node server in a terminal screen
+1 - Clone github repo
+2 - Run npm install
+3 - Create your own mongo DB (Use the models)
+4 - Create a .env file in the root directory (Clone from .env_sample and set your own parameters)
+
+You should be ready to go.
+The app listens exclusively the localhost:3000 port. If this port is not available when you kick off the API make sure to free the port up and restart API.
+To start the server run: node server in a terminal screen
 Once done the process will indicate server is started and connected to database. If not, an error will be displayed.
 
 A set of app variables are necessary in a .env file

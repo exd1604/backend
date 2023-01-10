@@ -131,7 +131,7 @@ exports.deleteSauce = (req, res, next) => {
                 });                
             }
         })            
-        .catch(error => { console.log('Error 500'); res.status(500).json({ error: error })});     
+        .catch(error => { res.status(500).json({ error: error })});     
 };
 
 /*
