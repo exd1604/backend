@@ -6,9 +6,21 @@
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
+/* 
+Check Email format is valid
+*/
+const validateEmail = function(email) {
+    const regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    return regexEmail.test(email);
+  };
+
 const userSchema = mongoose.Schema({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    email: {    type: String, 
+                required: true, 
+                validate: [validateEmail, "Email invalide"],
+                unique: true },
+    password: { type: String, 
+                required: true },
 });
 
 userSchema.plugin(uniqueValidator);

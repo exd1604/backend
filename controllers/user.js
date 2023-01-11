@@ -15,18 +15,28 @@ dotenv.config();
 
 // Sign up 
 exports.signup = (req, res, next) => {
+/* 
+    Check password between 8 to 15 characters
+    Contains:
+    at least 1 lowercase, 1 uppercase, 1 numeric digit, 1 special character
+*/
+    const regexPassword = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/
+    if (regexPassword.test(req.body.password)) {
 // Hash Password
-    bcrypt.hash(req.body.password, parseInt(process.env.BCRYPT_SALT_ROUNDS))
-        .then(hash => {
-            const user = new User({
-                email: req.body.email, 
-                password: hash                
-            });                        
-            user.save()
-                .then(() => res.status(201).json({ message: 'Utilisateur créé'}))
-                .catch(error => { res.status(400).json({ error: error })});
-        })
-        .catch(error => res.status(500).json({ error: error }));
+        bcrypt.hash(req.body.password, parseInt(process.env.BCRYPT_SALT_ROUNDS))
+            .then(hash => {
+                const user = new User({
+                    email: req.body.email, 
+                    password: hash                
+                });                        
+                user.save()
+                    .then(() => res.status(201).json({ message: 'Utilisateur créé'}))
+                    .catch(error => { res.status(400).json({ error: error })});
+            })
+            .catch(error => res.status(500).json({ error: error }));
+    } else {
+        res.status(400).json({ message: 'Mot de passe invalide. (Entre 8 et 15 caractères. Doit contenir majuscule(s), minuscule(s), chiffre(s), caractère(s) spécial(aux).)'});
+    }
 };
 
 // Login
