@@ -7,8 +7,6 @@ const path = require('path');
 // Routes
 const userRoutes = require('./routes/user');
 const sauceRoutes = require('./routes/sauce');
-// Connexion to db
-const mongoose = require('./mongo/connect');
 // Variables
 const dotenv = require('dotenv');
 dotenv.config();

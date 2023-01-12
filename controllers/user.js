@@ -23,7 +23,7 @@ exports.signup = (req, res, next) => {
     const regexPassword = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/
     if (regexPassword.test(req.body.password)) {
 // Hash Password
-        bcrypt.hash(req.body.password, parseInt(process.env.BCRYPT_SALT_ROUNDS))
+        bcrypt.hash(req.body.password, parseInt(process.env.BCRYPT_SALT_ROUNDS, 10))
             .then(hash => {
                 const user = new User({
                     email: req.body.email, 
