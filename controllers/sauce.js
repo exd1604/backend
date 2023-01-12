@@ -27,47 +27,99 @@ exports.createSauce = (req, res, next) => {
 };
 
 /* Like / Dislike sauce
-   Like values
-   0: User cancels a previous Like/Dislike (related counter decremented / User removed from the related array (usersLiked or usersDisliked))
-   1: User likes the sauce (likes counter incremented, usersLiked array fed)
+    Accepted values:
+    0: User cancels a previous Like/Dislike         
+    1: User likes the sauce (likes counter incremented, usersLiked array fed)
    -1: User dislikes the sauce (disLikes counter incremented, usersDisliked array fed)
+
+    Several checks to avoid bad requests.
+    1 - Routine is processed only if the user id passed through the request body 
+        matches the user id decoded from the token by the authentication middleware.
+        If not, then whole routine is ignored.
+    2 - Like / Dislike scenario is performed only if user did not already make same 
+        choice before.
+    3 - The cancel previous choice request is performed only if the user has made a 
+        previous choice (Like or dislike) before.
+    
+    In case of error, returns an error to the client and bypass the DB update.
 */
-exports.likeSauce = (req, res, next) => {    
-    Sauce.findOne({ _id: req.params.id})
-        .then(sauce => {
-            const sauceObject = {
-                likes: sauce.likes,
-                dislikes: sauce.dislikes,
-                usersLiked: sauce.usersLiked,
-                usersDisliked: sauce.usersDisliked
-            };           
-            switch (req.body.like) { 
-                case 1:                 
-                    sauceObject.likes++;
-                    sauceObject.usersLiked.push(req.body.userId);
-                    break;
-                case -1:
-                    sauceObject.dislikes++;
-                    sauceObject.usersDisliked.push(req.body.userId);
-                    break;
-                case 0:   
+exports.likeSauce = (req, res, next) => { 
+// Perform the routine only if the user passed through the request matches the user
+// decoded from authentication token middleware
+    if (req.body.userId ==  req.auth.userId) {
+        Sauce.findOne({ _id: req.params.id})
+            .then(sauce => {            
+                const sauceObject = {
+                    likes: sauce.likes,
+                    dislikes: sauce.dislikes,
+                    usersLiked: sauce.usersLiked,
+                    usersDisliked: sauce.usersDisliked
+                }; 
+
+    // Remove previous choices that were completed on the user 
+                function cancelPreviousChoice() {        
+            // User Liked Before 
                     if (sauceObject.usersLiked.indexOf(req.body.userId) >= 0) {                             
                         sauceObject.usersLiked.splice(sauceObject.usersLiked.indexOf(req.body.userId), 1);
                         sauceObject.likes--;
-                    } else if (sauceObject.usersDisliked.indexOf(req.body.userId) >= 0) {                                       
+                    } 
+            // User DisLiked Before
+                    if (sauceObject.usersDisliked.indexOf(req.body.userId) >= 0) {                                       
                         sauceObject.usersDisliked.splice(sauceObject.usersDisliked.indexOf(req.body.userId), 1);
-                        sauceObject.dislikes--;
-                    }
-                    break;
-                default:
-                    console.log(`Case ${req.body.like} not considered`);
-            }                                     
-// Update DB
-            Sauce.updateOne({ _id: req.params.id}, { ...sauceObject, _id: req.params.id})
-                .then(() => { res.status(200).json({ message: 'Objet Modifié' })})
-                .catch(error => { res.status(401).json({ error: error })});
-        })            
-        .catch(error => { res.status(400).json({ error: error })});    
+                        sauceObject.dislikes--;                    
+                    }                        
+                }
+            
+                switch (req.body.like) { 
+    // Like Request
+                    case 1: 
+                    if (sauceObject.usersLiked.indexOf(req.body.userId) == -1) 
+                        {
+                            cancelPreviousChoice();
+                            sauceObject.likes++;
+                            sauceObject.usersLiked.push(req.body.userId);
+                            break;
+                        }   
+    // Return Error - User 
+                        console.log('User already liked this sauce before. Action rejected.');
+                        return res.status(400).json({ message: 'Utilisateur(rice) a déjà liké cette sauce. Action refusée'});                    
+
+    // Dislike Request
+                    case -1:
+                        if (sauceObject.usersDisliked.indexOf(req.body.userId) == -1) {
+                            cancelPreviousChoice();
+                            sauceObject.dislikes++;
+                            sauceObject.usersDisliked.push(req.body.userId);
+                            break;
+                        }
+    // Return Error - User 
+                        console.log('User already disliked this sauce before. Action rejected.');
+                        return res.status(400).json({ message: 'Utilisateur(rice) a déjà disliké cette sauce. Action refusée'}); 
+    // 0 - Cancel Request
+                    case 0:
+                        if (sauceObject.usersLiked.indexOf(req.body.userId) >= 0
+                            || sauceObject.usersDisliked.indexOf(req.body.userId) >= 0) {
+                            cancelPreviousChoice();                        
+                            break;
+                        }   
+                        console.log('This user did not make any choice on this sauce before. Cancel request ignored');
+                        return res.status(400).json({ message: 'Valeur soumise invalide. Utilisateur(rice) n\'avait fait aucun choix sur cette sauce. Action ignorée'});                
+                    
+    // Value passed in request is wrong (Could be -1, 0 or 1)
+                    default:
+                        console.log(`Value ${req.body.like} invalid`);
+                        return res.status(400).json({ message: 'Valeur soumise invalide. Peut être -1, 0 ou  1'});
+                }                                     
+    // Update DB
+                Sauce.updateOne({ _id: req.params.id}, { ...sauceObject, _id: req.params.id})
+                    .then(() => { res.status(200).json({ message: 'Objet Modifié' })})
+                    .catch(error => { res.status(401).json({ error: error })});
+            })            
+            .catch(error => { res.status(400).json({ error: error })})
+    }   else {
+            console.log(`User Id passed through ${req.body.userId} invalid or unauthorised`);
+            return res.status(401).json({ message: 'Utilisateur(rice) requête invalide ou non autorisé'});
+        };    
 };
 
 /*
