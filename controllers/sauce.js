@@ -117,7 +117,7 @@ exports.likeSauce = (req, res, next) => {
             })            
             .catch(error => { res.status(400).json({ error: error })})
     }   else {
-            console.log(`User Id passed through ${req.body.userId} invalid or unauthorised`);
+            console.log('`User Id passed through the request is invalid or unauthorised');
             return res.status(401).json({ message: 'Utilisateur(rice) requête invalide ou non autorisé'});
         };    
 };
